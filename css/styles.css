@@ -1,0 +1,228 @@
+/* styles.css - Общие стили для приложения */
+
+body {
+  font-family: 'Arial', sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+  line-height: 1.6;
+}
+
+#login-form, #welcome-message, .section {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+input[type="text"], input[type="password"], textarea {
+  padding: 10px;
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 200px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.correct {
+  color: green;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.incorrect {
+  color: red;
+  font-weight: bold;
+  padding: 10px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.form-input:focus {
+  border-color: #4CAF50;
+  outline: none;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.submit-btn:hover {
+  background-color: #45a049;
+}
+
+.danger-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.danger-button:hover {
+  background-color: #d32f2f;
+}
+
+.success-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.success-button:hover {
+  background-color: #45a049;
+}
+
+.status {
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 5px 0;
+  display: inline-block;
+  font-weight: bold;
+}
+
+.status-active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.status-inactive {
+  background-color: #f44336;
+  color: white;
+}
+
+.status-frozen {
+  background-color: #2196F3;
+  color: white;
+}
+
+.cheating-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.cheating-table th,
+.cheating-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.cheating-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.cheating-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.cheating-alert {
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+}
+
+.success {
+  color: green;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  #login-form, #welcome-message, .section {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .cheating-table {
+    font-size: 14px;
+  }
+  
+  .cheating-table th,
+  .cheating-table td {
+    padding: 6px;
+  }
+}
