@@ -23,7 +23,6 @@ require_once 'config.php';
         }
 
         #quiz-container {
-            background-color: #ecf0f1;
             width: 100%;
             min-height: 100vh;
             display: none;

@@ -75,12 +75,96 @@ switch ($action) {
         break;
     case 'get-quiz-activity':
         if ($method == 'GET') {
-            // Заглушка для активности - позже реализуем
-            json_response([
-                'success' => true,
-                'active_participants' => 0,
-                'current_answers' => 0
-            ]);
+            try {
+                // Получаем общее количество участников
+                $stmt = $pdo->query("SELECT COUNT(*) as count FROM participants WHERE event_type = 'quiz'");
+                $total_participants = $stmt->fetch()['count'];
+                
+                // Получаем количество ответов на текущий вопрос
+                $current_answers = 0;
+                
+                // Получаем текущий активный вопрос
+                $stmt = $pdo->query("SELECT quiz_question_id FROM current_quiz_question WHERE is_active = 1 LIMIT 1");
+                $currentQuestion = $stmt->fetch();
+                
+                if ($currentQuestion) {
+                    $questionId = $currentQuestion['quiz_question_id'];
+                    $stmt = $pdo->prepare("SELECT COUNT(*) as cnt FROM quiz_participant_answers WHERE quiz_question_id = ?");
+                    $stmt->execute([$questionId]);
+                    $current_answers = $stmt->fetch()['cnt'];
+                }
+                
+                json_response([
+                    'success' => true,
+                    'total_participants' => $total_participants,
+                    'current_answers' => $current_answers,
+                    'active_participants' => 0 // Пока оставляем 0, можно реализовать позже
+                ]);
+                
+            } catch (PDOException $e) {
+                json_response([
+                    'success' => false,
+                    'error' => 'Ошибка получения активности: ' . $e->getMessage()
+                ]);
+            }
+        }
+        break;
+    case 'reset-quiz-data':
+        if ($method == 'POST') {
+            check_admin_auth();
+            
+            try {
+
+                // 1. Удаляем ответы на квиз
+                $stmt = $pdo->prepare("DELETE FROM quiz_participant_answers");
+                $stmt->execute();
+
+                // 2. Удаляем всех участников квиза
+                $stmt = $pdo->prepare("DELETE FROM participants WHERE event_type = 'quiz'");
+                $stmt->execute();
+                
+                // 3. Сбрасываем текущий вопрос квиза
+                $stmt = $pdo->prepare("DELETE FROM current_quiz_question");
+                $stmt->execute();
+                
+                // 4. Сбрасываем сессию квиза
+                $stmt = $pdo->prepare("DELETE FROM quiz_session");
+                $stmt->execute();
+                
+                // 5. Сбрасываем состояние квиза в таблице quiz_events
+                $stmt = $pdo->prepare("
+                    UPDATE quiz_events SET 
+                    event_status = 'not_started',
+                    is_accepting_answers = 1,
+                    is_ranking_frozen = 0,
+                    event_start_time = NULL,
+                    event_end_time = NULL,
+                    updated_at = NOW()
+                    WHERE id = 1
+                ");
+                $stmt->execute();
+                
+                // 6. Сбрасываем общее состояние в event_state
+                $stmt = $pdo->prepare("
+                    UPDATE event_state SET 
+                    event_status = 'not_started',
+                    is_accepting_answers = 1,
+                    is_ranking_frozen = 0,
+                    event_start_time = NULL,
+                    event_end_time = NULL,
+                    updated_at = NOW()
+                    WHERE id = 1
+                ");
+                $stmt->execute();
+                
+                json_response([
+                    'success' => true, 
+                    'message' => 'Данные квиза полностью сброшены'
+                ]);
+                
+            } catch (Exception $e) {
+                json_response(['success' => false, 'error' => 'Ошибка сброса квиза: ' . $e->getMessage()]);
+            }
         }
         break;
     case 'delete-questions-bulk':

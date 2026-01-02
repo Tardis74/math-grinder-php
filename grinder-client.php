@@ -9,6 +9,33 @@ require_once 'config.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Математическая мясорубка - Участник</title>
     <link rel="stylesheet" href="css/light-participant.css">
+    <style>
+        #waiting-screen.active,
+        #finished-screen.active {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            min-height: 100vh !important;
+            background-color: #ecf0f1 !important;
+            padding: 20px !important;
+        }
+
+        #waiting-screen.active .main-content-container,
+        #finished-screen.active .main-content-container {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            width: 100% !important;
+            max-width: 600px !important;
+        }
+
+        /* Исправляем отображение status-screen */
+        #waiting-screen .status-screen,
+        #finished-screen .status-screen {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+    </style>
 </head>
 <body>
     <div id="login-form" class="active">

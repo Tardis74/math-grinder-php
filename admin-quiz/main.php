@@ -626,25 +626,30 @@ try {
 
         async function resetQuiz() {
             if (confirm('Сбросить квиз?\n\nБудут удалены:\n• Все участники квиза\n• Все ответы\n• Вся статистика\n\nЭто действие нельзя отменить.')) {
-                const result = await apiRequest('clear-results', {
-                    event_type: 'quiz'
-                });
-                if (result.success) {
-                    alert('Квиз сброшен! Все данные очищены.');
+                try {
+                    // Используем новый API эндпоинт для сброса квиза
+                    const result = await apiRequest('reset-quiz-data', {});
                     
-                    // ВАЖНО: Сразу обновляем состояние интерфейса
-                    updateControlButtons(false);
-                    document.getElementById('quiz-status-badge').textContent = 'НЕ НАЧАТ';
-                    document.getElementById('quiz-status-badge').className = 'status-badge status-not_started';
-                    document.getElementById('current-status').textContent = 'Квиз сброшен';
-                    document.getElementById('current-question-display').textContent = '-';
-                    
-                    // Форсируем обновление через секунду
-                    setTimeout(() => {
-                        loadQuizStats();
-                    }, 1000);
-                } else {
-                    alert('Ошибка: ' + result.error);
+                    if (result.success) {
+                        showNotification('Квиз сброшен! Все данные очищены.', 'success');
+                        
+                        // Сразу обновляем интерфейс без ожидания
+                        updateControlButtons(false);
+                        document.getElementById('quiz-status-badge').textContent = 'НЕ НАЧАТ';
+                        document.getElementById('quiz-status-badge').className = 'status-badge status-not_started';
+                        document.getElementById('current-status').textContent = 'Квиз сброшен';
+                        document.getElementById('current-question-display').textContent = '-';
+                        document.getElementById('quiz-timer').textContent = '--:--';
+                        
+                        // Обновляем статистику
+                        setTimeout(() => {
+                            loadQuizStats();
+                        }, 500);
+                    } else {
+                        showNotification('Ошибка: ' + result.error, 'error');
+                    }
+                } catch (error) {
+                    showNotification('Ошибка при сбросе квиза: ' + error.message, 'error');
                 }
             }
         }
@@ -774,13 +779,22 @@ try {
                 container.innerHTML = `
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div style="padding: 10px; background: #f8f9fa; border-radius: 5px;">
-                            <strong>Активных участников:</strong> ${result.active_participants || 0}
+                            <strong>Всего участников:</strong> ${result.total_participants || 0}
                         </div>
                         <div style="padding: 10px; background: #f8f9fa; border-radius: 5px;">
                             <strong>Ответов на текущий вопрос:</strong> ${result.current_answers || 0}
                         </div>
                     </div>
+                    <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                        Обновлено: ${new Date().toLocaleTimeString('ru-RU')}
+                    </div>
                 `;
+                
+                // Также обновляем карточку статистики
+                const participantsElement = document.querySelector('.stat-card.success .stat-number');
+                if (participantsElement) {
+                    participantsElement.textContent = result.total_participants || 0;
+                }
             } else {
                 container.innerHTML = '<p>Нет данных об активности</p>';
             }
