@@ -1,0 +1,59 @@
+/* light-quiz-scoreboard.css - Дополнительные стили для табло квиза */
+
+/* Улучшения для адаптивности */
+@media (max-width: 1200px) {
+    .answers-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Анимации для переключения экранов */
+.quiz-screen {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Стили для рейтинга */
+.ranking-table {
+    font-size: 1.1em;
+}
+
+.ranking-table td:first-child {
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Стили для индикаторов */
+.participants-count {
+    background: #9b59b6;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+/* Стили для фаз квиза */
+.phase-indicator {
+    position: relative;
+    overflow: hidden;
+}
+
+.phase-indicator::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
