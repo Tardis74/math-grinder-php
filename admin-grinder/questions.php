@@ -370,8 +370,8 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
                 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <button class="btn btn-success" onclick="showAddQuestionModal()">➕ Добавить вопрос</button>
-                    <button class="btn" onclick="showImportModal()">📁 Импорт из файла</button>
-                    <button class="btn" onclick="exportQuestions()">📤 Экспорт вопросов</button>
+                    <button class="btn" onclick="exportQuestionsXLSX()">📤 Экспорт в XLSX</button>
+                    <button class="btn" onclick="importQuestionsXLSX()">📥 Импорт из XLSX</button> 
                     <button class="btn btn-danger" onclick="clearAllQuestions()">🗑️ Очистить все</button>
                     <button class="btn btn-danger" onclick="showBulkDeleteModal()">🗑️ Удалить выбранные</button>
                 </div>
@@ -605,6 +605,141 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
                     });
                 });
             }, 100);
+        }
+
+        async function exportQuestionsXLSX() {
+            try {
+                // Показываем индикатор загрузки
+                showLoader();
+                
+                // Делаем запрос на экспорт
+                const response = await fetch('../api.php?action=export-questions-xlsx');
+                
+                if (response.ok) {
+                    // Создаем blob из ответа
+                    const blob = await response.blob();
+                    
+                    // Создаем ссылку для скачивания
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'questions_export_' + new Date().toISOString().split('T')[0] + '.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    // Пробуем получить JSON с ошибкой
+                    try {
+                        const errorData = await response.json();
+                        alert('Ошибка экспорта: ' + (errorData.error || 'Неизвестная ошибка'));
+                    } catch {
+                        alert('Ошибка экспорта: ' + response.status + ' ' + response.statusText);
+                    }
+                }
+            } catch (error) {
+                alert('Ошибка сети: ' + error.message);
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function importQuestionsXLSX() {
+            // Создаем input для выбора файла
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx';
+            
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Проверяем расширение файла
+                if (!file.name.toLowerCase().endsWith('.xlsx')) {
+                    alert('Пожалуйста, выберите файл с расширением .xlsx');
+                    return;
+                }
+                
+                // Показываем подтверждение
+                if (!confirm('Вы уверены, что хотите импортировать вопросы из этого файла? Существующие вопросы не будут удалены.')) {
+                    return;
+                }
+                
+                // Показываем индикатор загрузки
+                showLoader();
+                
+                // Отправляем файл на сервер
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    const response = await fetch('../api.php?action=import-questions-xlsx', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert(result.message);
+                        
+                        // Показываем статистику импорта
+                        if (result.imported) {
+                            let stats = '\nСтатистика импорта:\n';
+                            stats += `• Вопросы мясорубки: ${result.imported.grinder || 0}\n`;
+                            stats += `• Вопросы квиза: ${result.imported.quiz || 0}\n`;
+                            stats += `• Варианты ответов: ${result.imported.options || 0}`;
+                            alert(stats);
+                        }
+                        
+                        // Перезагружаем список вопросов
+                        loadQuestions();
+                    } else {
+                        alert('Ошибка импорта: ' + result.error);
+                    }
+                    
+                    // Показываем ошибки если есть
+                    if (result.errors && result.errors.length > 0) {
+                        console.error('Ошибки импорта:', result.errors);
+                        alert('Были ошибки при импорте. Проверьте консоль браузера для деталей.');
+                    }
+                } catch (error) {
+                    alert('Ошибка сети: ' + error.message);
+                } finally {
+                    hideLoader();
+                }
+            };
+            
+            input.click();
+        }
+
+        // Вспомогательные функции для индикатора загрузки
+        function showLoader() {
+            let loader = document.getElementById('loader-overlay');
+            if (!loader) {
+                loader = document.createElement('div');
+                loader.id = 'loader-overlay';
+                loader.style.position = 'fixed';
+                loader.style.top = '0';
+                loader.style.left = '0';
+                loader.style.width = '100%';
+                loader.style.height = '100%';
+                loader.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                loader.style.zIndex = '9999';
+                loader.style.display = 'flex';
+                loader.style.justifyContent = 'center';
+                loader.style.alignItems = 'center';
+                loader.innerHTML = '<div style="color: white; font-size: 20px;">Загрузка...</div>';
+                document.body.appendChild(loader);
+            }
+            loader.style.display = 'flex';
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('loader-overlay');
+            if (loader) {
+                loader.style.display = 'none';
+            }
         }
 
         function updateSelectedQuestions(checkbox) {

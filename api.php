@@ -185,6 +185,15 @@ switch ($action) {
             update_participant_score($input);
         }
         break;
+    case 'export-questions-xlsx':
+        require_once __DIR__ . '/includes/api/export-xlsx.php';
+        export_questions_xlsx();
+        break;
+
+    case 'import-questions-xlsx':
+        require_once __DIR__ . '/includes/api/import-xlsx.php';
+        import_questions_xlsx($input);
+        break;
     case 'add-quiz-question-with-image':
     case 'update-quiz-question-with-image':
         require_once 'includes/api/quiz-questions-with-images.php';
