@@ -1,7 +1,7 @@
 <?php
 // config.php - Основной конфигурационный файл
 
-date_default_timezone_set('Asia/Yekaterinburg'); // Или ваш часовой пояс
+date_default_timezone_set('Asia/Yekaterinburg'); // Или ваш часовой пояс  Europe/Moscow
 
 // Настройки базы данных
 define('DB_HOST', 'localhost');

@@ -249,15 +249,7 @@ function delete_quiz_question($data) {
         $pdo->beginTransaction();
         
         $question_id = $data['id'];
-        
-        // Удаляем ответы
-        $stmt = $pdo->prepare("DELETE FROM quiz_answers WHERE quiz_question_id = ?");
-        $stmt->execute([$question_id]);
-        
-        // Удаляем вопрос
-        $stmt = $pdo->prepare("DELETE FROM quiz_questions WHERE id = ?");
-        $stmt->execute([$question_id]);
-        
+
         // Обновляем порядок оставшихся вопросов
         $stmt = $pdo->query("SET @row_number = 0");
         $stmt = $pdo->query("
@@ -265,6 +257,14 @@ function delete_quiz_question($data) {
             SET display_order = (@row_number:=@row_number + 1) 
             ORDER BY display_order
         ");
+
+        // Удаляем ответы
+        $stmt = $pdo->prepare("DELETE FROM quiz_answers WHERE quiz_question_id = ?");
+        $stmt->execute([$question_id]);
+
+        // Удаляем вопрос
+        $stmt = $pdo->prepare("DELETE FROM quiz_questions WHERE id = ?");
+        $stmt->execute([$question_id]);
         
         $pdo->commit();
         json_response(['success' => true, 'message' => 'Вопрос удален']);

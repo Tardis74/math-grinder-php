@@ -631,7 +631,7 @@ try {
                     const result = await apiRequest('reset-quiz-data', {});
                     
                     if (result.success) {
-                        showNotification('Квиз сброшен! Все данные очищены.', 'success');
+                        alert('Квиз сброшен! Все данные очищены.');
                         
                         // Сразу обновляем интерфейс без ожидания
                         updateControlButtons(false);
@@ -646,10 +646,10 @@ try {
                             loadQuizStats();
                         }, 500);
                     } else {
-                        showNotification('Ошибка: ' + result.error, 'error');
+                        alert('Ошибка: ' + result.error,);
                     }
                 } catch (error) {
-                    showNotification('Ошибка при сбросе квиза: ' + error.message, 'error');
+                    alert('Ошибка при сбросе квиза: ' + error.message);
                 }
             }
         }
